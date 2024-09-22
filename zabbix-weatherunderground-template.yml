@@ -1,0 +1,518 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 4f3c765d2d56450fb07f1989e2414774
+      name: Templates
+  templates:
+    - uuid: 6c76af99d0634a408eb6f208101d7692
+      template: 'Weather Underground by HTTP agent'
+      name: 'Weather Underground by HTTP agent'
+      groups:
+        - name: Jirka-Testy
+      macros:
+        - macro: '{$API_KEY}'
+          value: your_api_key_here
+        - macro: '{$FORMAT}'
+          value: json
+        - macro: '{$STATION_ID}'
+          value: ""
+        - macro: '{$UNITS}'
+          value: m
+          description: 'Units: Imperial (English) - e Metric - m Metric SI - s Hybrid UK - h'
+        - macro: '{$URL}'
+          value: 'https://api.weather.com/v2/pws/observations/current'
+          description: 'Weather Underground URL'
+      items:
+        - uuid: aa9beb76d9b249b5b24036846de81d2d
+          name: 'Weather Underground'
+          type: HTTP_AGENT
+          key: weather.get
+          value_type: TEXT
+          trends: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.observations[0]'
+          url: '{$URL}'
+          query_fields:
+            - name: stationId
+              value: '{$STATION_ID}'
+            - name: format
+              value: '{$FORMAT}'
+            - name: units
+              value: '{$UNITS}'
+            - name: apiKey
+              value: '{$API_KEY}'
+        - uuid: 3dd01f246b6c40bab48af4a1a498f931
+          name: 'Dew point'
+          type: DEPENDENT
+          key: wather.dewpt
+          delay: '0'
+          units: ˚C
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.metric.dewpt
+          master_item:
+            key: weather.get
+        - uuid: 6a5485a148224f838ef87dc36186d2ea
+          name: Humidity
+          type: DEPENDENT
+          key: wather.humidity
+          delay: '0'
+          value_type: FLOAT
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.humidity
+          master_item:
+            key: weather.get
+        - uuid: b42d67cc5d7f446182dc4a236645c896
+          name: PrecipRate
+          type: DEPENDENT
+          key: wather.precipRate
+          delay: '0'
+          value_type: FLOAT
+          units: mm/hr
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.metric.precipRate
+          master_item:
+            key: weather.get
+        - uuid: 62c67a3ad09244d1b776851fb57c85d2
+          name: precipTotal
+          type: DEPENDENT
+          key: wather.precipTotal
+          delay: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.metric.precipTotal
+          master_item:
+            key: weather.get
+        - uuid: a50aae5cbd4143f1957e97b00f2c65e5
+          name: Pressure
+          type: DEPENDENT
+          key: wather.pressure
+          delay: '0'
+          value_type: FLOAT
+          units: HPa
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.metric.pressure
+          master_item:
+            key: weather.get
+        - uuid: d6a5fceb75814621bcd7271a5eb239a4
+          name: Temperature
+          type: DEPENDENT
+          key: wather.temerature
+          delay: '0'
+          units: ˚C
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.metric.temp
+          master_item:
+            key: weather.get
+        - uuid: 307081fc941a4126b862b5db4e1e62fd
+          name: 'Wind Gust'
+          type: DEPENDENT
+          key: wather.windGust
+          delay: '0'
+          value_type: FLOAT
+          units: km/h
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.metric.windGust
+          master_item:
+            key: weather.get
+        - uuid: c71698e2e23842af913c00784edc20b3
+          name: 'Wind speed'
+          type: DEPENDENT
+          key: wather.windSpeed
+          delay: '0'
+          value_type: FLOAT
+          units: km/h
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.metric.windSpeed
+          master_item:
+            key: weather.get
+      dashboards:
+        - uuid: 61e127566e5e4a488749a2464f0935e9
+          name: 'Current Weather'
+          pages:
+            - name: 'Current Weather'
+              widgets:
+                - type: gauge
+                  name: Humidity
+                  width: '10'
+                  height: '3'
+                  fields:
+                    - type: INTEGER
+                      name: angle
+                      value: '270'
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Weather Underground by HTTP agent'
+                        key: wather.humidity
+                    - type: STRING
+                      name: max
+                      value: '100'
+                    - type: STRING
+                      name: min
+                      value: '0'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '3'
+                    - type: INTEGER
+                      name: show.3
+                      value: '4'
+                    - type: INTEGER
+                      name: show.4
+                      value: '5'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: FF0000
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: FFD54F
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '20'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: 4CAF50
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '30'
+                    - type: STRING
+                      name: thresholds.3.color
+                      value: FDD835
+                    - type: STRING
+                      name: thresholds.3.threshold
+                      value: '90'
+                    - type: STRING
+                      name: thresholds.4.color
+                      value: ED1248
+                    - type: STRING
+                      name: thresholds.4.threshold
+                      value: '100'
+                    - type: INTEGER
+                      name: th_show_arc
+                      value: '1'
+                - type: gauge
+                  name: Temperature
+                  'y': '3'
+                  width: '10'
+                  height: '3'
+                  fields:
+                    - type: INTEGER
+                      name: angle
+                      value: '270'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Weather Underground by HTTP agent'
+                        key: wather.temerature
+                    - type: STRING
+                      name: max
+                      value: '45'
+                    - type: STRING
+                      name: min
+                      value: '-30'
+                    - type: STRING
+                      name: needle_color
+                      value: '000000'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '3'
+                    - type: INTEGER
+                      name: show.3
+                      value: '4'
+                    - type: INTEGER
+                      name: show.4
+                      value: '5'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: FF0000
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '-30'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: FFD54F
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '-10'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: 7CB342
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '-4'
+                    - type: STRING
+                      name: thresholds.3.color
+                      value: FDD835
+                    - type: STRING
+                      name: thresholds.3.threshold
+                      value: '25'
+                    - type: STRING
+                      name: thresholds.4.color
+                      value: ED1248
+                    - type: STRING
+                      name: thresholds.4.threshold
+                      value: '35'
+                    - type: INTEGER
+                      name: th_show_arc
+                      value: '1'
+                - type: item
+                  name: 'Wind speed'
+                  'y': '6'
+                  width: '10'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Weather Underground by HTTP agent'
+                        key: wather.windSpeed
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '4'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 7CB342
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '10'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: FFD54F
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '20'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: FF0000
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '30'
+                - type: item
+                  'y': '9'
+                  width: '10'
+                  height: '3'
+                  fields:
+                    - type: INTEGER
+                      name: history
+                      value: '2'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Weather Underground by HTTP agent'
+                        key: wather.pressure
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '4'
+                - type: svggraph
+                  name: 'Humidity last 24 hours'
+                  x: '10'
+                  width: '27'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: ds.0.color
+                      value: 03A9F4
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: Humidity
+                    - type: STRING
+                      name: reference
+                      value: OUCEO
+                    - type: INTEGER
+                      name: righty
+                      value: '0'
+                    - type: STRING
+                      name: time_period.from
+                      value: now-24h
+                    - type: STRING
+                      name: time_period.to
+                      value: now
+                - type: svggraph
+                  name: 'Temperature last 24 hours'
+                  x: '10'
+                  'y': '3'
+                  width: '27'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: ds.0.color
+                      value: 66BB6A
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: Temperature
+                    - type: STRING
+                      name: ds.1.color
+                      value: 2E7D32
+                    - type: INTEGER
+                      name: ds.1.fill
+                      value: '1'
+                    - type: STRING
+                      name: ds.1.items.0
+                      value: 'Dew point'
+                    - type: INTEGER
+                      name: ds.1.width
+                      value: '2'
+                    - type: STRING
+                      name: reference
+                      value: LAHSA
+                    - type: INTEGER
+                      name: righty
+                      value: '0'
+                    - type: STRING
+                      name: time_period.from
+                      value: now-24h
+                    - type: STRING
+                      name: time_period.to
+                      value: now
+                - type: svggraph
+                  name: 'Wind speed last 24 hours'
+                  x: '10'
+                  'y': '6'
+                  width: '27'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: ds.0.color
+                      value: FF8A65
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Wind speed'
+                    - type: STRING
+                      name: ds.1.color
+                      value: FF465C
+                    - type: STRING
+                      name: ds.1.items.0
+                      value: 'Wind Gust'
+                    - type: INTEGER
+                      name: ds.1.type
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: OGROS
+                    - type: INTEGER
+                      name: righty
+                      value: '0'
+                    - type: STRING
+                      name: time_period.from
+                      value: now-24h
+                    - type: STRING
+                      name: time_period.to
+                      value: now
+                - type: svggraph
+                  name: 'Pressure last 24 hours'
+                  x: '10'
+                  'y': '9'
+                  width: '27'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: ds.0.color
+                      value: A1887F
+                    - type: STRING
+                      name: ds.0.data_set_label
+                      value: 'Preasure HPa'
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: Pressure
+                    - type: STRING
+                      name: reference
+                      value: FPWMP
+                    - type: INTEGER
+                      name: righty
+                      value: '0'
+                    - type: STRING
+                      name: time_period.from
+                      value: now-24h
+                    - type: STRING
+                      name: time_period.to
+                      value: now
+                - type: item
+                  name: 'Wind speed MAX in 24 hours'
+                  x: '37'
+                  'y': '6'
+                  width: '7'
+                  height: '3'
+                  fields:
+                    - type: INTEGER
+                      name: aggregate_function
+                      value: '2'
+                    - type: INTEGER
+                      name: history
+                      value: '1'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Weather Underground by HTTP agent'
+                        key: wather.windSpeed
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '4'
+  graphs:
+    - uuid: 0d7d26b9571a43b9a9cc9be01d3033fa
+      name: Temperature
+      graph_items:
+        - drawtype: FILLED_REGION
+          color: 66BB6A
+          calc_fnc: ALL
+          item:
+            host: 'Weather Underground by HTTP agent'
+            key: wather.temerature
+        - sortorder: '1'
+          color: '274482'
+          calc_fnc: ALL
+          item:
+            host: 'Weather Underground by HTTP agent'
+            key: wather.dewpt
